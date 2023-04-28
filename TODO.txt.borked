@@ -1,0 +1,53 @@
+* Change the context to per-channel per-user (and not just per-user)
+
+* Add more try/catch blocks; everything should be inside a try/catch block.
+
+* Have Marisa @mention users without having it done in the system prompt.
+
+* Have Marisa address users by their server-local names, or at least lop off the #1234 part of UserName#1234. Look for the logic where we obtain 'user.id' and go from there.
+
+<<<<<<< HEAD
+* make her re-try up to N times if her first attempt fails and it isn't due to 'over the token limit'
+=======
+* Make Marisa aware of whether or not she was cut off (if this is not possible, have her set a personal cap at N words, where N is 25% of the available tokens). Allow her to auto-continue up to AUTO_CONTINUE_LIMIT times.
+>>>>>>> 2127e8d3d2b24c3a89ef0fc0a9c728cb2fe2c406
+
+* Have Marisa log '[loaded user data file FOO]' when appropriate. 
+
+* Each prompt starts with the current number of people on the server, and the current list of users in the current channel (if 19 or under) or count (if 20 or over)
+
+* On startup, Have Marisa read the channel history up to the size of her context window for each user and put it in as past User utterances, so she can continue on the event of a restart or crash.
+
+* Determine the size of the context window. Keep the message history as sent limited to 2x as many words as there are tokens in the context window.
+
+* Implement 'summary' functionality. If 'REMEMBER_SUMMARIES' is set to True, At the start of each utterance, have Marisa give a brief 1-sentence summary inside brackets and ticks: `[SUMMARY: foo]`\n\n.
+
+  These summaries are logged, but not presented to users (unless SHOW_SUMMARIES is set to True)
+
+  Extend the messages data structure to incorporate date/time stamps.
+
+  Extend the messages data structure to assign a unique alphanumeric identifier to each response, and to store summaries alongside the actual response.
+
+  Create a new data structure as a queue of summaries. Each element contains the local alphanumeric identifier from the response the summary initiated in, the date/time stamp originally copied from the messages data structure, and the summary blurb. 
+
+  If 'REMEMBER_SUMMARIES' is set to True, the first system message sent to Marisa is always the concatenated summaries of the most recent N items prior to the first message in the history, where N is 'as many as will fit in, but not exceed, MAX_SUMMARY_MEMORY_SIZE. (When we hit an item that would exceed MAX_SUMMARY_MEMORY_SIZE, it and any subsequent earlier items get popped off the queue.
+  
+* Implement a role-playing mode, based on an initial prompt with conclusions hidden in a spoiler tag, and periodic reminders. See 'Marisa roleplaying prompt' in Leah's evernote for basis.
+
+* Implement a multiplayer mode, tied to a specific channel and context, but not a user.
+
+* Make Marisa Multithreaded.
+
+* Catch errors from OpenAI, and expose them in the log, and to the user.
+
+* Improve logging. The log of a message should appear no later than it appears in Discord!
+
+* Have MARISA cut herself off after X words, and send another response. In other words,
+  ensure she doesn't get cut off by the end of tokens; just have her send her own
+  message, with a [MORE...] token at the end. If she sees [MORE...] at the end,
+  she can reply to herself, up to N times.
+
+* Extend MARISA's ability to read Discord attachments, if they are textual in nature.
+  If she needs to take several pages to read through them, iterate up to N times
+  (where we set N as some reasonable number to avoid spamming her)
+
